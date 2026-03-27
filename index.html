@@ -1,83 +1,260 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SnailStep · Mobility Week CRM</title>
+  <style>
+    :root{
+      --brand:#01534f;
+      --bg:#f4f7f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:32px 20px 48px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:42px;
+      color:var(--brand);
+    }
+
+    .subtitle{
+      margin:0 0 24px;
+      color:var(--muted);
+      font-size:16px;
+    }
+
+    .toolbar{
+      background:var(--card);
+      border-radius:16px;
+      padding:16px;
+      margin-bottom:24px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .search{
+      width:100%;
+      padding:14px 16px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      font-size:16px;
+      outline:none;
+    }
+
+    .search:focus{
+      border-color:var(--brand);
+    }
+
+    .summary{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .country-card{
+      background:var(--card);
+      border-radius:18px;
+      padding:20px;
+      margin-bottom:24px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .country-title{
+      margin:0 0 18px;
+      color:var(--brand);
+      font-size:28px;
+    }
+
+    .cities-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      gap:16px;
+    }
+
+    .city-card{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      background:#fcfcfc;
+    }
+
+    .city-name{
+      font-size:22px;
+      font-weight:bold;
+      margin-bottom:10px;
+    }
+
+    .field{
+      margin:6px 0;
+      line-height:1.45;
+    }
+
+    .label{
+      font-weight:bold;
+    }
+
+    a{
+      color:var(--brand);
+      text-decoration:none;
+      word-break:break-word;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .empty{
+      background:var(--card);
+      border-radius:16px;
+      padding:24px;
+      text-align:center;
+      color:var(--muted);
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    @media (max-width:640px){
+      h1{font-size:30px}
+      .country-title{font-size:24px}
+      .city-name{font-size:20px}
+    }
+  </style>
 </head>
 <body>
-  <h1>SnailStep · Mobility Week CRM</h1>
-  <p>Directorio visual de ciudades, contactos y departamentos vinculados a movilidad.</p>
-  <div id="results">Cargando datos...</div>
+  <div class="wrap">
+    <h1>SnailStep · Mobility Week CRM</h1>
+    <p class="subtitle">Directorio visual de ciudades, contactos y departamentos vinculados a movilidad.</p>
+
+    <div class="toolbar">
+      <input
+        id="searchInput"
+        class="search"
+        type="text"
+        placeholder="Buscar por país, ciudad, contacto, email o departamento..."
+      />
+      <div id="summaryText" class="summary">Cargando datos...</div>
+    </div>
+
+    <div id="results"></div>
+  </div>
 
   <script>
-   <script>
-const results = document.getElementById("results");
+    const COUNTRY_FLAGS = {
+      AL:"🇦🇱", AZ:"🇦🇿", GE:"🇬🇪", MT:"🇲🇹", CH:"🇨🇭", EC:"🇪🇨", IS:"🇮🇸",
+      LV:"🇱🇻", NL:"🇳🇱", MD:"🇲🇩", MX:"🇲🇽", ME:"🇲🇪", IE:"🇮🇪", NO:"🇳🇴",
+      PE:"🇵🇪", KS:"🇽🇰", JP:"🇯🇵", BA:"🇧🇦", UA:"🇺🇦", MK:"🇲🇰", CY:"🇨🇾",
+      EE:"🇪🇪", BG:"🇧🇬", HR:"🇭🇷", LU:"🇱🇺", RO:"🇷🇴", RS:"🇷🇸", AR:"🇦🇷",
+      GB:"🇬🇧", GR:"🇬🇷", CZ:"🇨🇿", FI:"🇫🇮", LT:"🇱🇹", FR:"🇫🇷", PT:"🇵🇹",
+      IT:"🇮🇹", ES:"🇪🇸"
+    };
 
-fetch("./mobility_data.json")
-  .then(r => r.json())
-  .then(data => {
+    const results = document.getElementById("results");
+    const searchInput = document.getElementById("searchInput");
+    const summaryText = document.getElementById("summaryText");
 
-    let html = "";
+    let GLOBAL_DATA = {};
 
-    Object.entries(data).forEach(([code, country]) => {
+    function cityMatches(city, countryName, code, query) {
+      const fullText = [
+        code,
+        countryName || "",
+        city.name || "",
+        city.population || "",
+        city.department || "",
+        city.contact_name || "",
+        city.email || "",
+        city.address || "",
+        city.website || ""
+      ].join(" ").toLowerCase();
 
-      html += `
-        <div style="
-          margin-bottom:30px;
-          padding:20px;
-          background:#ffffff;
-          border-radius:12px;
-          box-shadow:0 4px 12px rgba(0,0,0,0.08);
-        ">
-          <h2 style="color:#01534f; margin-bottom:15px;">
-            ${code} - ${country.country_name}
-          </h2>
-          <div style="
-            display:grid;
-            grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
-            gap:15px;
-          ">
-      `;
+      return fullText.includes(query.toLowerCase());
+    }
 
-      country.cities.forEach(city => {
-        html += `
-          <div style="
-            padding:15px;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-            background:#f9fafb;
-          ">
-            <div style="font-weight:bold; font-size:18px; margin-bottom:8px;">
-              ${city.name}
-            </div>
+    function renderData(DATA, query = "") {
+      results.innerHTML = "";
 
-            <div><strong>Population:</strong> ${city.population || "N/A"}</div>
-            <div><strong>Department:</strong> ${city.department || "N/A"}</div>
-            <div><strong>Contact:</strong> ${city.contact_name || "N/A"}</div>
-            <div><strong>Email:</strong> ${
+      let countriesShown = 0;
+      let citiesShown = 0;
+
+      Object.entries(DATA).forEach(([code, country]) => {
+        if (!country || !Array.isArray(country.cities)) return;
+
+        const filteredCities = country.cities.filter(city =>
+          cityMatches(city, country.country_name, code, query)
+        );
+
+        if (filteredCities.length === 0) return;
+
+        countriesShown++;
+        citiesShown += filteredCities.length;
+
+        const countryCard = document.createElement("section");
+        countryCard.className = "country-card";
+
+        const citiesHtml = filteredCities.map(city => `
+          <article class="city-card">
+            <div class="city-name">${city.name || "N/A"}</div>
+            <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
+            <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
+            <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
+            <div class="field"><span class="label">Email:</span> ${
               city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
             }</div>
-            <div><strong>Website:</strong> ${
-              city.website
-                ? `<a href="${city.website}" target="_blank">${city.website}</a>`
-                : "N/A"
+            <div class="field"><span class="label">Website:</span> ${
+              city.website ? `<a href="${city.website}" target="_blank" rel="noopener noreferrer">${city.website}</a>` : "N/A"
             }</div>
-          </div>
+          </article>
+        `).join("");
+
+        countryCard.innerHTML = `
+          <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name || code}</h2>
+          <div class="cities-grid">${citiesHtml}</div>
         `;
+
+        results.appendChild(countryCard);
       });
 
-      html += `
-          </div>
-        </div>
-      `;
+      if (citiesShown === 0) {
+        results.innerHTML = `<div class="empty">No se han encontrado resultados.</div>`;
+      }
+
+      summaryText.textContent = `${countriesShown} país(es) · ${citiesShown} ciudad(es) visibles`;
+    }
+
+    fetch("./mobility_data.json")
+      .then(response => {
+        if (!response.ok) throw new Error("No se pudo cargar mobility_data.json");
+        return response.json();
+      })
+      .then(data => {
+        GLOBAL_DATA = data;
+        renderData(GLOBAL_DATA);
+      })
+      .catch(error => {
+        console.error(error);
+        results.innerHTML = `<div class="empty">Error cargando datos.</div>`;
+        summaryText.textContent = "0 país(es) · 0 ciudad(es)";
+      });
+
+    searchInput.addEventListener("input", e => {
+      renderData(GLOBAL_DATA, e.target.value.trim());
     });
-
-    results.innerHTML = html;
-
-  })
-  .catch(err => {
-    results.textContent = "Error cargando datos";
-    console.error(err);
-  });
-</script>
+  </script>
+</body>
+</html>

@@ -11,24 +11,42 @@
   <div id="results">Cargando datos...</div>
 
   <script>
-    fetch("./mobility_data.json")
-      .then(r => r.json())
-      .then(data => {
-        const firstCountry = Object.entries(data)[0];
-        if (!firstCountry) {
-          document.getElementById("results").textContent = "No hay datos.";
-          return;
-        }
+   <script>
+const results = document.getElementById("results");
 
-        const [code, country] = firstCountry;
-        document.getElementById("results").innerHTML =
-          "<h2>" + code + " - " + country.country_name + "</h2>" +
-          "<p>Ciudades: " + country.cities.length + "</p>";
-      })
-      .catch(err => {
-        document.getElementById("results").textContent = "Error cargando datos";
-        console.error(err);
+fetch("./mobility_data.json")
+  .then(r => r.json())
+  .then(data => {
+
+    let html = "";
+
+    Object.entries(data).forEach(([code, country]) => {
+
+      html += `<h2>${code} - ${country.country_name}</h2>`;
+
+      country.cities.forEach(city => {
+        html += `
+          <div style="margin-bottom:15px; padding:10px; border:1px solid #ccc;">
+            <strong>${city.name}</strong><br>
+            Population: ${city.population || "N/A"}<br>
+            Contact: ${city.contact_name || "N/A"}<br>
+            Email: ${city.email || "N/A"}<br>
+            Website: ${
+              city.website
+                ? `<a href="${city.website}" target="_blank">${city.website}</a>`
+                : "N/A"
+            }
+          </div>
+        `;
       });
-  </script>
-</body>
-</html>
+
+    });
+
+    results.innerHTML = html;
+
+  })
+  .catch(err => {
+    results.textContent = "Error cargando datos";
+    console.error(err);
+  });
+</script>

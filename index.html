@@ -14,9 +14,7 @@
       --line: #e5e7eb;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -132,17 +130,9 @@
     }
 
     @media (max-width: 640px) {
-      h1 {
-        font-size: 30px;
-      }
-
-      .country-title {
-        font-size: 24px;
-      }
-
-      .city-name {
-        font-size: 20px;
-      }
+      h1 { font-size: 30px; }
+      .country-title { font-size: 24px; }
+      .city-name { font-size: 20px; }
     }
   </style>
 </head>
@@ -165,154 +155,111 @@
   </div>
 
   <script>
-    const RAW_DATA = {
-      "AL": {
-        "country_name": "Albania",
-        "cities": [
-          {
-            "name": "Bashkia Elbasan",
-            "population": "217.578",
-            "website": "https://elbasani.gov.al",
-            "department": "Directory of Planning, Economic Development and Transport",
-            "contact_name": "Alba Canaj",
-            "address": "Rruga Qemal Stafa, Elbasan, 3001",
-            "phone": "(++355) 692022717",
-            "email": "alba.canaj@elbasani.gov.al"
-          },
-          {
-            "name": "Tirana",
-            "population": "520.000",
-            "website": "",
-            "department": "Promotion and Awareness Unit",
-            "contact_name": "Meri Lamce",
-            "address": "Pallati Bjorn, Bulevardi Gjergj Fishta 10, Tirane, 1001",
-            "phone": "(++355) 694649946",
-            "email": ""
-          }
-        ]
-      },
-      "AZ": {
-        "country_name": "Azerbaijan",
-        "cities": [
-          {
-            "name": "Baku",
-            "population": "2.333.600",
-            "website": "http://www.ayna.gov.az",
-            "department": "State Programs and Projects Coordination",
-            "contact_name": "Vusal Abbasov",
-            "address": "5, Haji Mammadov str., Baku, AZ1033",
-            "phone": "(++994) 12566 52 58",
-            "email": "vusal.abbasov@ayna.gov.az"
-          }
-        ]
-      }
+    const COUNTRY_FLAGS = {
+      AL:"🇦🇱", AZ:"🇦🇿", GE:"🇬🇪", MT:"🇲🇹", CH:"🇨🇭", EC:"🇪🇨", IS:"🇮🇸",
+      LV:"🇱🇻", NL:"🇳🇱", MD:"🇲🇩", MX:"🇲🇽", ME:"🇲🇪", IE:"🇮🇪", NO:"🇳🇴",
+      PE:"🇵🇪", KS:"🇽🇰", JP:"🇯🇵", BA:"🇧🇦", UA:"🇺🇦", MK:"🇲🇰", CY:"🇨🇾",
+      EE:"🇪🇪", BG:"🇧🇬", HR:"🇭🇷", LU:"🇱🇺", RO:"🇷🇴", RS:"🇷🇸", AR:"🇦🇷",
+      GB:"🇬🇧", GR:"🇬🇷", CZ:"🇨🇿", FI:"🇫🇮", LT:"🇱🇹", FR:"🇫🇷", PT:"🇵🇹",
+      IT:"🇮🇹", ES:"🇪🇸"
     };
 
-   <script>
-<script>
-const COUNTRY_FLAGS = {
-  AL:"🇦🇱", AZ:"🇦🇿", GE:"🇬🇪", MT:"🇲🇹", CH:"🇨🇭", EC:"🇪🇨", IS:"🇮🇸",
-  LV:"🇱🇻", NL:"🇳🇱", MD:"🇲🇩", MX:"🇲🇽", ME:"🇲🇪", IE:"🇮🇪", NO:"🇳🇴",
-  PE:"🇵🇪", KS:"🇽🇰", JP:"🇯🇵", BA:"🇧🇦", UA:"🇺🇦", MK:"🇲🇰", CY:"🇨🇾",
-  EE:"🇪🇪", BG:"🇧🇬", HR:"🇭🇷", LU:"🇱🇺", RO:"🇷🇴", RS:"🇷🇸", AR:"🇦🇷",
-  GB:"🇬🇧", GR:"🇬🇷", CZ:"🇨🇿", FI:"🇫🇮", LT:"🇱🇹", FR:"🇫🇷", PT:"🇵🇹",
-  IT:"🇮🇹", ES:"🇪🇸"
-};
+    const results = document.getElementById("results");
+    const searchInput = document.getElementById("searchInput");
+    const summaryText = document.getElementById("summaryText");
 
-const results = document.getElementById("results");
-const searchInput = document.getElementById("searchInput");
-const summaryText = document.getElementById("summaryText");
+    function cityMatches(city, countryName, code, query) {
+      const fullText = [
+        code,
+        countryName || "",
+        city.name || "",
+        city.population || "",
+        city.website || "",
+        city.department || "",
+        city.contact_name || "",
+        city.address || "",
+        city.phone || "",
+        city.email || ""
+      ].join(" ").toLowerCase();
 
-function cityMatches(city, countryName, code, query) {
-  const fullText = [
-    code,
-    countryName || "",
-    city.name || "",
-    city.population || "",
-    city.website || "",
-    city.department || "",
-    city.contact_name || "",
-    city.address || "",
-    city.phone || "",
-    city.email || ""
-  ].join(" ").toLowerCase();
-
-  return fullText.includes(query.toLowerCase());
-}
-
-function renderData(DATA, query = "") {
-  results.innerHTML = "";
-
-  let countriesShown = 0;
-  let citiesShown = 0;
-
-  Object.entries(DATA).forEach(([code, country]) => {
-    if (!country || !Array.isArray(country.cities)) return;
-
-    const filteredCities = country.cities.filter(city =>
-      cityMatches(city, country.country_name, code, query)
-    );
-
-    if (filteredCities.length === 0) return;
-
-    countriesShown++;
-    citiesShown += filteredCities.length;
-
-    const countryCard = document.createElement("section");
-    countryCard.className = "country-card";
-
-    const citiesHtml = filteredCities.map(city => `
-      <article class="city-card">
-        <div class="city-name">${city.name || "N/A"}</div>
-        <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
-        <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
-        <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
-        <div class="field"><span class="label">Address:</span> ${city.address || "N/A"}</div>
-        <div class="field"><span class="label">Phone:</span> ${city.phone || "N/A"}</div>
-        <div class="field"><span class="label">Email:</span> ${
-          city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
-        }</div>
-        <div class="field"><span class="label">Website:</span> ${
-          city.website ? `<a href="${city.website}" target="_blank" rel="noopener noreferrer">${city.website}</a>` : "N/A"
-        }</div>
-      </article>
-    `).join("");
-
-    countryCard.innerHTML = `
-      <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name || code}</h2>
-      <div class="cities-grid">${citiesHtml}</div>
-    `;
-
-    results.appendChild(countryCard);
-  });
-
-  if (citiesShown === 0) {
-    results.innerHTML = `<div class="empty">No se han encontrado resultados.</div>`;
-  }
-
-  summaryText.textContent = `${countriesShown} país(es) · ${citiesShown} ciudad(es)`;
-}
-
-let GLOBAL_DATA = {};
-
-fetch("./mobility_data.json")
-  .then(response => {
-    if (!response.ok) {
-      throw new Error("No se pudo cargar mobility_data.json");
+      return fullText.includes(query.toLowerCase());
     }
-    return response.json();
-  })
-  .then(data => {
-    GLOBAL_DATA = data;
-    renderData(GLOBAL_DATA);
-  })
-  .catch(error => {
-    console.error("Error cargando datos:", error);
-    results.innerHTML = `<div class="empty">Error cargando datos. Revisa la consola.</div>`;
-    summaryText.textContent = "0 país(es) · 0 ciudad(es)";
-  });
 
-searchInput.addEventListener("input", (e) => {
-  renderData(GLOBAL_DATA, e.target.value.trim());
-});
-</script>
+    function renderData(DATA, query = "") {
+      results.innerHTML = "";
+
+      let countriesShown = 0;
+      let citiesShown = 0;
+
+      Object.entries(DATA).forEach(([code, country]) => {
+        if (!country || !Array.isArray(country.cities)) return;
+
+        const filteredCities = country.cities.filter(city =>
+          cityMatches(city, country.country_name, code, query)
+        );
+
+        if (filteredCities.length === 0) return;
+
+        countriesShown++;
+        citiesShown += filteredCities.length;
+
+        const countryCard = document.createElement("section");
+        countryCard.className = "country-card";
+
+        const citiesHtml = filteredCities.map(city => `
+          <article class="city-card">
+            <div class="city-name">${city.name || "N/A"}</div>
+            <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
+            <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
+            <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
+            <div class="field"><span class="label">Address:</span> ${city.address || "N/A"}</div>
+            <div class="field"><span class="label">Phone:</span> ${city.phone || "N/A"}</div>
+            <div class="field"><span class="label">Email:</span> ${
+              city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
+            }</div>
+            <div class="field"><span class="label">Website:</span> ${
+              city.website ? `<a href="${city.website}" target="_blank" rel="noopener noreferrer">${city.website}</a>` : "N/A"
+            }</div>
+          </article>
+        `).join("");
+
+        countryCard.innerHTML = `
+          <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name || code}</h2>
+          <div class="cities-grid">${citiesHtml}</div>
+        `;
+
+        results.appendChild(countryCard);
+      });
+
+      if (citiesShown === 0) {
+        results.innerHTML = `<div class="empty">No se han encontrado resultados.</div>`;
+      }
+
+      summaryText.textContent = `${countriesShown} país(es) · ${citiesShown} ciudad(es)`;
+    }
+
+    let GLOBAL_DATA = {};
+
+    fetch("./mobility_data.json")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("No se pudo cargar mobility_data.json");
+        }
+        return response.json();
+      })
+      .then(data => {
+        GLOBAL_DATA = data;
+        renderData(GLOBAL_DATA);
+      })
+      .catch(error => {
+        console.error("Error cargando datos:", error);
+        results.innerHTML = `<div class="empty">Error cargando datos. Revisa la consola.</div>`;
+        summaryText.textContent = "0 país(es) · 0 ciudad(es)";
+      });
+
+    searchInput.addEventListener("input", (e) => {
+      renderData(GLOBAL_DATA, e.target.value.trim());
+    });
+  </script>
+</body>
+</html>

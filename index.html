@@ -209,12 +209,14 @@
     };
 
    <script>
+<script>
 const COUNTRY_FLAGS = {
-  AL:"🇦🇱", AZ:"🇦🇿", GE:"🇬🇪", CH:"🇨🇭", EC:"🇪🇨", IS:"🇮🇸", 
-  LV:"🇱🇻", NL:"🇳🇱", MD:"🇲🇩", MX:"🇲🇽", ME:"🇲🇪", IE:"🇮🇪", 
-  NO:"🇳🇴", PE:"🇵🇪", KS:"🇽🇰", JP:"🇯🇵", BA:"🇧🇦", UA:"🇺🇦", 
-  MK:"🇲🇰", CY:"🇨🇾", GB:"🇬🇧", GR:"🇬🇷", ES:"🇪🇸", FR:"🇫🇷", 
-  DE:"🇩🇪", IT:"🇮🇹"
+  AL:"🇦🇱", AZ:"🇦🇿", GE:"🇬🇪", MT:"🇲🇹", CH:"🇨🇭", EC:"🇪🇨", IS:"🇮🇸",
+  LV:"🇱🇻", NL:"🇳🇱", MD:"🇲🇩", MX:"🇲🇽", ME:"🇲🇪", IE:"🇮🇪", NO:"🇳🇴",
+  PE:"🇵🇪", KS:"🇽🇰", JP:"🇯🇵", BA:"🇧🇦", UA:"🇺🇦", MK:"🇲🇰", CY:"🇨🇾",
+  EE:"🇪🇪", BG:"🇧🇬", HR:"🇭🇷", LU:"🇱🇺", RO:"🇷🇴", RS:"🇷🇸", AR:"🇦🇷",
+  GB:"🇬🇧", GR:"🇬🇷", CZ:"🇨🇿", FI:"🇫🇮", LT:"🇱🇹", FR:"🇫🇷", PT:"🇵🇹",
+  IT:"🇮🇹", ES:"🇪🇸"
 };
 
 const results = document.getElementById("results");
@@ -224,18 +226,16 @@ const summaryText = document.getElementById("summaryText");
 function cityMatches(city, countryName, code, query) {
   const fullText = [
     code,
-    countryName,
-    city.name,
-    city.population,
-    city.website,
-    city.department,
-    city.contact_name,
-    city.address,
-    city.phone,
-    city.email
-  ]
-    .join(" ")
-    .toLowerCase();
+    countryName || "",
+    city.name || "",
+    city.population || "",
+    city.website || "",
+    city.department || "",
+    city.contact_name || "",
+    city.address || "",
+    city.phone || "",
+    city.email || ""
+  ].join(" ").toLowerCase();
 
   return fullText.includes(query.toLowerCase());
 }
@@ -247,6 +247,8 @@ function renderData(DATA, query = "") {
   let citiesShown = 0;
 
   Object.entries(DATA).forEach(([code, country]) => {
+    if (!country || !Array.isArray(country.cities)) return;
+
     const filteredCities = country.cities.filter(city =>
       cityMatches(city, country.country_name, code, query)
     );
@@ -261,7 +263,7 @@ function renderData(DATA, query = "") {
 
     const citiesHtml = filteredCities.map(city => `
       <article class="city-card">
-        <div class="city-name">${city.name}</div>
+        <div class="city-name">${city.name || "N/A"}</div>
         <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
         <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
         <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
@@ -271,13 +273,13 @@ function renderData(DATA, query = "") {
           city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
         }</div>
         <div class="field"><span class="label">Website:</span> ${
-          city.website ? `<a href="${city.website}" target="_blank">${city.website}</a>` : "N/A"
+          city.website ? `<a href="${city.website}" target="_blank" rel="noopener noreferrer">${city.website}</a>` : "N/A"
         }</div>
       </article>
     `).join("");
 
     countryCard.innerHTML = `
-      <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name}</h2>
+      <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name || code}</h2>
       <div class="cities-grid">${citiesHtml}</div>
     `;
 
@@ -293,15 +295,21 @@ function renderData(DATA, query = "") {
 
 let GLOBAL_DATA = {};
 
-fetch("mobility_data.json")
-  .then(res => res.json())
+fetch("./mobility_data.json")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("No se pudo cargar mobility_data.json");
+    }
+    return response.json();
+  })
   .then(data => {
     GLOBAL_DATA = data;
     renderData(GLOBAL_DATA);
   })
-  .catch(err => {
-    results.innerHTML = `<div class="empty">Error cargando datos</div>`;
-    console.error(err);
+  .catch(error => {
+    console.error("Error cargando datos:", error);
+    results.innerHTML = `<div class="empty">Error cargando datos. Revisa la consola.</div>`;
+    summaryText.textContent = "0 país(es) · 0 ciudad(es)";
   });
 
 searchInput.addEventListener("input", (e) => {

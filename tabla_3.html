@@ -1,1 +1,59 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Document</title>\n</head>\n<body>\n    <h1>Security Improvements</h1>\n    <script>\n        // XSS Protection: Function to escape HTML characters\n        function escapeHTML(str) {\n            return str.replace(/&/g, '&amp;')\n                      .replace(/</g, '&lt;')\n                      .replace(/>/g, '&gt;')\n                      .replace(/"/g, '&quot;')\n                      .replace(/'/g, '&#39;');\n        }\n        \n        // URL Validation: Function to validate URLs\n        function isValidURL(url) {\n            const pattern = new RegExp('^(https?:\/\/)?'+ // protocol\n                '((([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.)+([a-z]{2,})|'+ // domain name\n                'localhost|'+ // localhost\n                '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'+ // IPv4\n                '\[?[a-f0-9]*:[a-f0-9:]+\]?)'+ // IPv6\n                '(\:\d+)?(\/[-a-z0-9+&@#\/%?=~_|!:,.;]*[a-z0-9])?$','i');\n            return !!pattern.test(url);\n        }\n        \n        // Improved Error Handling: Function to log errors to the console\n        function logError(error) {\n            console.error('An error occurred:', error);\n        }\n    <\/script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla 3</title>
+    <script>
+        // Function to escape HTML to prevent XSS
+        function escapeHTML(unsafe) {
+            return unsafe
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;')
+                .replace(/\/g, '&#x2F;');
+        }
+
+        // Function to validate URLs
+        function isValidURL(url) {
+            const regex = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\- .\/\?%&=]*)?$/;
+            return regex.test(url);
+        }
+
+        // Function to sanitize inputs
+        function sanitizeInput(input) {
+            return escapeHTML(input);
+        }
+
+        // Error handling function
+        function handleError(error) {
+            console.error('Error:', error);
+            alert('An error occurred: ' + error);
+        }
+    </script>
+</head>
+<body>
+    <h1>Secure Tabla 3</h1>
+    <form id="myForm">
+        <label for="urlInput">Enter URL:</label>
+        <input type="text" id="urlInput" name="urlInput" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('myForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const urlInput = document.getElementById('urlInput').value;
+            if (isValidURL(urlInput)) {
+                // Process and sanitize input if valid
+                const sanitizedInput = sanitizeInput(urlInput);
+                console.log('Sanitized Input:', sanitizedInput);
+            } else {
+                handleError('Invalid URL provided.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,67 +1,168 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SnailStep Mobility CRM</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnailStep · Mobility Week CRM</title>
   <style>
+    :root {
+      --brand: #01534f;
+      --bg: #f4f7f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 24px;
-      background: #f5f7fa;
-      color: #1f2937;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
     }
 
     h1 {
-      margin-bottom: 24px;
+      margin: 0 0 8px;
+      font-size: 40px;
+      color: var(--brand);
     }
 
-    .country {
-      background: white;
-      border-radius: 12px;
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .toolbar {
+      background: var(--card);
+      border-radius: 16px;
       padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
     }
 
-    .country h2 {
-      margin-top: 0;
-      color: #01534f;
+    .search {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
     }
 
-    .city {
-      border-top: 1px solid #e5e7eb;
-      padding: 12px 0;
+    .search:focus {
+      border-color: var(--brand);
     }
 
-    .city:first-of-type {
-      border-top: none;
+    .summary {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .country-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .country-title {
+      margin: 0 0 18px;
+      color: var(--brand);
+      font-size: 28px;
+    }
+
+    .cities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .city-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fcfcfc;
     }
 
     .city-name {
+      font-size: 22px;
       font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
 
     .field {
-      margin: 3px 0;
+      margin: 6px 0;
+      line-height: 1.4;
+    }
+
+    .label {
+      font-weight: bold;
     }
 
     a {
-      color: #01534f;
+      color: var(--brand);
       text-decoration: none;
+      word-break: break-word;
     }
 
     a:hover {
       text-decoration: underline;
     }
+
+    .empty {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 30px;
+      }
+
+      .country-title {
+        font-size: 24px;
+      }
+
+      .city-name {
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>SnailStep · Mobility Week CRM</h1>
-  <div id="list"></div>
+  <div class="wrap">
+    <h1>SnailStep · Mobility Week CRM</h1>
+    <p class="subtitle">Directorio visual de ciudades, contactos y departamentos vinculados a movilidad.</p>
+
+    <div class="toolbar">
+      <input
+        type="text"
+        id="searchInput"
+        class="search"
+        placeholder="Buscar por país, ciudad, contacto, email o departamento..."
+      />
+      <div class="summary" id="summaryText"></div>
+    </div>
+
+    <div id="results"></div>
+  </div>
 
   <script>
     const RAW_DATA = {
@@ -112,36 +213,85 @@
       AZ: "🇦🇿"
     };
 
-    const container = document.getElementById("list");
+    const results = document.getElementById("results");
+    const searchInput = document.getElementById("searchInput");
+    const summaryText = document.getElementById("summaryText");
 
-    Object.entries(RAW_DATA).forEach(([code, country]) => {
-      const countryBlock = document.createElement("div");
-      countryBlock.className = "country";
+    function cityMatches(city, countryName, code, query) {
+      const fullText = [
+        code,
+        countryName,
+        city.name,
+        city.population,
+        city.website,
+        city.department,
+        city.contact_name,
+        city.address,
+        city.phone,
+        city.email
+      ]
+        .join(" ")
+        .toLowerCase();
 
-      const citiesHtml = country.cities.map(city => `
-        <div class="city">
-          <div class="city-name">${city.name}</div>
-          <div class="field"><strong>Population:</strong> ${city.population || "N/A"}</div>
-          <div class="field"><strong>Department:</strong> ${city.department || "N/A"}</div>
-          <div class="field"><strong>Contact:</strong> ${city.contact_name || "N/A"}</div>
-          <div class="field"><strong>Address:</strong> ${city.address || "N/A"}</div>
-          <div class="field"><strong>Phone:</strong> ${city.phone || "N/A"}</div>
-          <div class="field"><strong>Email:</strong> ${city.email || "N/A"}</div>
-          <div class="field"><strong>Website:</strong> ${
-            city.website
-              ? `<a href="${city.website}" target="_blank">${city.website}</a>`
-              : "N/A"
-          }</div>
-        </div>
-      `).join("");
+      return fullText.includes(query.toLowerCase());
+    }
 
-      countryBlock.innerHTML = `
-        <h2>${COUNTRY_FLAGS[code] || ""} ${country.country_name}</h2>
-        ${citiesHtml}
-      `;
+    function renderData(query = "") {
+      results.innerHTML = "";
 
-      container.appendChild(countryBlock);
+      let countriesShown = 0;
+      let citiesShown = 0;
+
+      Object.entries(RAW_DATA).forEach(([code, country]) => {
+        const filteredCities = country.cities.filter(city =>
+          cityMatches(city, country.country_name, code, query)
+        );
+
+        if (filteredCities.length === 0) return;
+
+        countriesShown++;
+        citiesShown += filteredCities.length;
+
+        const countryCard = document.createElement("section");
+        countryCard.className = "country-card";
+
+        const citiesHtml = filteredCities.map(city => `
+          <article class="city-card">
+            <div class="city-name">${city.name}</div>
+            <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
+            <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
+            <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
+            <div class="field"><span class="label">Address:</span> ${city.address || "N/A"}</div>
+            <div class="field"><span class="label">Phone:</span> ${city.phone || "N/A"}</div>
+            <div class="field"><span class="label">Email:</span> ${
+              city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
+            }</div>
+            <div class="field"><span class="label">Website:</span> ${
+              city.website ? `<a href="${city.website}" target="_blank">${city.website}</a>` : "N/A"
+            }</div>
+          </article>
+        `).join("");
+
+        countryCard.innerHTML = `
+          <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name}</h2>
+          <div class="cities-grid">${citiesHtml}</div>
+        `;
+
+        results.appendChild(countryCard);
+      });
+
+      if (citiesShown === 0) {
+        results.innerHTML = `<div class="empty">No se han encontrado resultados para tu búsqueda.</div>`;
+      }
+
+      summaryText.textContent = `${countriesShown} país(es) · ${citiesShown} ciudad(es) visibles`;
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      renderData(e.target.value.trim());
     });
+
+    renderData();
   </script>
 </body>
 </html>

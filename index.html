@@ -11,37 +11,73 @@
   <div id="results">Cargando datos...</div>
 
   <script>
-    fetch("./mobility_data.json")
-      .then(r => r.json())
-      .then(data => {
-        let html = "";
+   <script>
+const results = document.getElementById("results");
 
-        Object.entries(data).forEach(([code, country]) => {
-          html += `<h2>${code} - ${country.country_name}</h2>`;
+fetch("./mobility_data.json")
+  .then(r => r.json())
+  .then(data => {
 
-          country.cities.forEach(city => {
-            html += `
-              <div style="margin-bottom:15px; padding:10px; border:1px solid #ccc;">
-                <strong>${city.name}</strong><br>
-                Population: ${city.population || "N/A"}<br>
-                Contact: ${city.contact_name || "N/A"}<br>
-                Email: ${city.email || "N/A"}<br>
-                Website: ${
-                  city.website
-                    ? `<a href="${city.website}" target="_blank">${city.website}</a>`
-                    : "N/A"
-                }
-              </div>
-            `;
-          });
-        });
+    let html = "";
 
-        document.getElementById("results").innerHTML = html;
-      })
-      .catch(err => {
-        document.getElementById("results").textContent = "Error cargando datos";
-        console.error(err);
+    Object.entries(data).forEach(([code, country]) => {
+
+      html += `
+        <div style="
+          margin-bottom:30px;
+          padding:20px;
+          background:#ffffff;
+          border-radius:12px;
+          box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        ">
+          <h2 style="color:#01534f; margin-bottom:15px;">
+            ${code} - ${country.country_name}
+          </h2>
+          <div style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
+            gap:15px;
+          ">
+      `;
+
+      country.cities.forEach(city => {
+        html += `
+          <div style="
+            padding:15px;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+            background:#f9fafb;
+          ">
+            <div style="font-weight:bold; font-size:18px; margin-bottom:8px;">
+              ${city.name}
+            </div>
+
+            <div><strong>Population:</strong> ${city.population || "N/A"}</div>
+            <div><strong>Department:</strong> ${city.department || "N/A"}</div>
+            <div><strong>Contact:</strong> ${city.contact_name || "N/A"}</div>
+            <div><strong>Email:</strong> ${
+              city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
+            }</div>
+            <div><strong>Website:</strong> ${
+              city.website
+                ? `<a href="${city.website}" target="_blank">${city.website}</a>`
+                : "N/A"
+            }</div>
+          </div>
+        `;
       });
-  </script>
-</body>
-</html>
+
+      html += `
+          </div>
+        </div>
+      `;
+    });
+
+    results.innerHTML = html;
+
+  })
+  .catch(err => {
+    results.textContent = "Error cargando datos";
+    console.error(err);
+  });
+</script>

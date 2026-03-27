@@ -1,1 +1,672 @@
-{"countries":[{"name":"Country1","cities":[{"name":"City1-1"},{"name":"City1-2"}]},{"name":"Country2","cities":[{"name":"City2-1"},{"name":"City2-2"}]}]}
+const RAW_DATA = {
+  "AL": {
+    "country_name": "Albania",
+    "cities": [
+      {
+        "name": "Bashkia Elbasan",
+        "population": "217.578",
+        "website": "https://elbasani.gov.al",
+        "department": "Directory of Planning, Economic Development and Transport",
+        "contact_name": "Alba Canaj",
+        "address": "Rruga Qemal Stafa, Elbasan, 3001",
+        "phone": "(++355) 692022717",
+        "email": "alba.canaj@elbasani.gov.al"
+      },
+      {
+        "name": "Tirana",
+        "population": "520.000",
+        "website": "",
+        "department": "Promotion and Awareness Unit",
+        "contact_name": "Meri Lamce",
+        "address": "Pallati Bjorn, Bulevardi Gjergj Fishta 10, Tirane, 1001",
+        "phone": "(++355) 694649946",
+        "email": ""
+      }
+    ]
+  },
+  "AZ": {
+    "country_name": "Azerbaijan",
+    "cities": [
+      {
+        "name": "Baku",
+        "population": "2.333.600",
+        "website": "http://www.ayna.gov.az",
+        "department": "State Programs and Projects Coordination",
+        "contact_name": "Vusal Abbasov",
+        "address": "5, Haji Mammadov str., Baku, AZ1033",
+        "phone": "(++994) 12566 52 58",
+        "email": "vusal.abbasov@ayna.gov.az"
+      }
+    ]
+  },
+  "GE": {
+    "country_name": "Georgia",
+    "cities": [
+      {
+        "name": "Tbilisi",
+        "population": "1.202.731",
+        "website": "http://tbilisi.gov.ge",
+        "department": "Tbilisi Transport and Urban Development Agency",
+        "contact_name": "Daviti Aslanishvili",
+        "address": "Shartava st.7, 0141 Tbilisi",
+        "phone": "(++995) 598751513",
+        "email": "D.aslanishvili@tbilisi.gov.ge"
+      }
+    ]
+  },
+  "CH": {
+    "country_name": "Switzerland",
+    "cities": [
+      {
+        "name": "Basel",
+        "population": "200.000",
+        "website": "http://basel-unterwegs.ch/mowo",
+        "department": "Amt fur Mobilitat",
+        "contact_name": "Thomas Graf",
+        "address": "Dufourstrasse 40, CH-4001 Basel",
+        "phone": "(++41) 612678534",
+        "email": "thomas.graf@bs.ch"
+      }
+    ]
+  },
+  "EC": {
+    "country_name": "Ecuador",
+    "cities": [
+      {
+        "name": "Cuenca",
+        "population": "636.996",
+        "website": "http://www.cuenca.gob.ec",
+        "department": "Subgerencia de Movilidad Sostenible",
+        "contact_name": "Veronica Hormazabal Andrade",
+        "address": "Carlos Arizaga Toral y Tarquino Cordero, Edificio EMOV, 010206 Cuenca",
+        "phone": "(++593) 72855694",
+        "email": "mhormazabal@emov.gob.ec"
+      }
+    ]
+  },
+  "IS": {
+    "country_name": "Iceland",
+    "cities": [
+      {
+        "name": "Akureyri",
+        "population": "20.000",
+        "website": "https://www.akureyri.is",
+        "department": "",
+        "contact_name": "Katla Eiriksdottir",
+        "address": "Geislagata 9, 600 Akureyri",
+        "phone": "+3546591790",
+        "email": "katlaei@akureyri.is"
+      },
+      {
+        "name": "Reykjavik",
+        "population": "120.000",
+        "website": "http://www.reykjavik.is/samgonguvika",
+        "department": "Department of Environment and Planning",
+        "contact_name": "Bjorg Helgadottir",
+        "address": "Borgartun 12-14, 105 Reykjavik",
+        "phone": "(++354) 4118902",
+        "email": "bjorg.helgadottir@reykjavik.is"
+      }
+    ]
+  },
+  "LV": {
+    "country_name": "Latvia",
+    "cities": [
+      {
+        "name": "Jurmala",
+        "population": "60.378",
+        "website": "http://www.jurmala.lv",
+        "department": "Jurmalas Attistibas parvaldes Mobilitates nodala",
+        "contact_name": "Katrina Spurele",
+        "address": "Straumes iela 1A, Jurmala, LV-2015",
+        "phone": "(++371) 25643330",
+        "email": "katrina.spurele@jurmala.lv"
+      },
+      {
+        "name": "Riga",
+        "population": "621.369",
+        "website": "https://www.riga.lv/lv",
+        "department": "Department of External Communication of Riga City Council",
+        "contact_name": "Lelde Rudzika",
+        "address": "Ratslaukums 1, Centra rajons, Riga, LV-1050",
+        "phone": "(++371) 29393211",
+        "email": "lelde.rudzika@riga.lv"
+      }
+    ]
+  },
+  "NL": {
+    "country_name": "Netherlands",
+    "cities": [
+      {
+        "name": "Amsterdam",
+        "population": "932.000",
+        "website": "http://www.amsterdam.nl",
+        "department": "Department of Transportation and Public Space",
+        "contact_name": "Ivo Frantzen",
+        "address": "Amstel 1, 1011PN, Amsterdam",
+        "phone": "",
+        "email": "i.frantzen@amsterdam.nl"
+      },
+      {
+        "name": "Den Haag",
+        "population": "565.000",
+        "website": "http://www.denhaag.nl",
+        "department": "",
+        "contact_name": "Manon Bos",
+        "address": "Gemeente Den Haag, Spui 70, 2511 BT Den Haag",
+        "phone": "",
+        "email": "manon.bos@denhaag.nl"
+      }
+    ]
+  },
+  "MD": {
+    "country_name": "Moldova",
+    "cities": [
+      {
+        "name": "Chisinau",
+        "population": "832.900",
+        "website": "http://www.chisinau.md",
+        "department": "City Hall of Chisinau Municipality",
+        "contact_name": "Ilie Ceban",
+        "address": "83, Stefan cel Mare bd., Chisinau, MD-2004",
+        "phone": "(++373) 22201514",
+        "email": "primaria@pmc.md"
+      },
+      {
+        "name": "Ungheni",
+        "population": "30.000",
+        "website": "https://ungheni.md",
+        "department": "Culture Sport and Youth",
+        "contact_name": "Atamuratov Marina",
+        "address": "Stefan cel Mare 79 ap 42, 3600 Ungheni",
+        "phone": "(++373) 78201203",
+        "email": ""
+      }
+    ]
+  },
+  "MX": {
+    "country_name": "Mexico",
+    "cities": [
+      {
+        "name": "Chimalhuacan",
+        "population": "800.000",
+        "website": "http://chimalhuacan.gob.mx",
+        "department": "Transito y Movilidad",
+        "contact_name": "Direccion de Transito Vialidad y Movilidad",
+        "address": "Acocili sin numero, 56236 Chimalhuacan",
+        "phone": "+525620881650",
+        "email": ""
+      },
+      {
+        "name": "San Pedro Garza Garcia",
+        "population": "132.169",
+        "website": "https://www.sanpedro.gob.mx",
+        "department": "Direccion de Movilidad",
+        "contact_name": "Ricardo Adrian Tovar Ramirez",
+        "address": "Independencia 233, 66200 San Pedro Garza Garcia",
+        "phone": "(++52) 8184004612",
+        "email": ""
+      }
+    ]
+  },
+  "ME": {
+    "country_name": "Montenegro",
+    "cities": [
+      {
+        "name": "Bar",
+        "population": "42.000",
+        "website": "http://bar.me",
+        "department": "Sekretarijat za komunalno stambene poslove",
+        "contact_name": "Ljubisa Tadic",
+        "address": "Bulevar revolucije 1, 85000 Bar",
+        "phone": "(++382) 67634607",
+        "email": "ljubisa.tadic@bar.me"
+      },
+      {
+        "name": "Podgorica",
+        "population": "200.000",
+        "website": "http://www.podgorica.me",
+        "department": "International Cooperation Office",
+        "contact_name": "Teodora Kusovac",
+        "address": "Njegoseva 13, Podgorica 81000",
+        "phone": "(++382) 68101333",
+        "email": "teodora.kusovac@podgorica.me"
+      },
+      {
+        "name": "Tivat",
+        "population": "17.000",
+        "website": "https://opstinativat.me",
+        "department": "Mayor's Office",
+        "contact_name": "Branka Celanovic",
+        "address": "85320 Tivat",
+        "phone": "",
+        "email": "pr@opstinativat.me"
+      }
+    ]
+  },
+  "IE": {
+    "country_name": "Ireland",
+    "cities": [
+      {
+        "name": "Cork",
+        "population": "210.000",
+        "website": "https://corkcity.ie/en/",
+        "department": "Community Culture & Placemaking",
+        "contact_name": "Frank Fitzgerald",
+        "address": "City Hall, Anglesea Street, Cork, T12 T997",
+        "phone": "(++353) 868127751",
+        "email": "frank_fitzgerald@corkcity.ie"
+      },
+      {
+        "name": "Dublin City",
+        "population": "500.000",
+        "website": "http://www.dublincity.ie",
+        "department": "Environment & Transport",
+        "contact_name": "Lucy Hayes",
+        "address": "Block 2, Floor 7, Civic Offices, Wood Quay, Dublin 8, D08 RF3F",
+        "phone": "(++353) 01 874559494",
+        "email": "lucy.hayes@dublincity.ie"
+      },
+      {
+        "name": "Fingal",
+        "population": "300.000",
+        "website": "http://www.fingal.ie",
+        "department": "Environment, Climate Action, Active Travel & Sport",
+        "contact_name": "Stephen McGinn",
+        "address": "Civic Offices, Grove Road, Blanchardstown, D15W638",
+        "phone": "(++353) 1871103418",
+        "email": "Stephen.mcginn@fingal.ie"
+      },
+      {
+        "name": "Waterford",
+        "population": "51.519",
+        "website": "http://www.waterfordcouncil.ie",
+        "department": "Roads Department",
+        "contact_name": "Jemma Jacob",
+        "address": "Menapia Building, The Mall, Waterford, X91 PK15",
+        "phone": "(++353) 872142385",
+        "email": "jjacob@waterfordcouncil.ie"
+      }
+    ]
+  },
+  "NO": {
+    "country_name": "Norway",
+    "cities": [
+      {
+        "name": "Bergen",
+        "population": "280.000",
+        "website": "http://www.bergen.kommune.no",
+        "department": "Department of urban development",
+        "contact_name": "Einar Grieg",
+        "address": "P.O.Box 7700, 5020 Bergen",
+        "phone": "(++47) 90072543",
+        "email": "einar.grieg@bergen.kommune.no"
+      },
+      {
+        "name": "Hamar",
+        "population": "35.000",
+        "website": "http://www.hamar.kommune.no",
+        "department": "Miljo og klima",
+        "contact_name": "Lise Urset",
+        "address": "Vangsvegen 51, 2317 Hamar",
+        "phone": "(++47) 98470980",
+        "email": "lise.urset@hamar.kommune.no"
+      },
+      {
+        "name": "Stavanger",
+        "population": "132.000",
+        "website": "http://www.stavanger.kommune.no",
+        "department": "Bymiljo og utbygging",
+        "contact_name": "Imme Dirks Eskeland",
+        "address": "Postboks 8001, 4068 Stavanger",
+        "phone": "(++47) 51508485",
+        "email": "imme.dirks.eskeland@stavanger.kommune.no"
+      },
+      {
+        "name": "Oygarden",
+        "population": "40.000",
+        "website": "https://www.oygarden.kommune.no",
+        "department": "Culture, sports and leisure",
+        "contact_name": "Unni Sorensen",
+        "address": "Foldnesvegen 1, 5354 Oygarden",
+        "phone": "(++47) 56160000",
+        "email": "unni.sorensen@oygarden.kommune.no"
+      }
+    ]
+  },
+  "PE": {
+    "country_name": "Peru",
+    "cities": [
+      {
+        "name": "Pichari",
+        "population": "40.000",
+        "website": "https://munipichari.gob.pe",
+        "department": "Cusco",
+        "contact_name": "Darwin Lino Quispe Loayza",
+        "address": "Av. Heroes del Vraem S/n, 08850 Pichari",
+        "phone": "(++51) 980875502",
+        "email": "xtammdx@gmail.com"
+      },
+      {
+        "name": "Piura",
+        "population": "599.207",
+        "website": "http://www.gob.pe/munipiura",
+        "department": "Piura",
+        "contact_name": "Gerardo Novillo Gonzales",
+        "address": "Jr. Ayacucho 377, Centro Civico, 20000 Piura",
+        "phone": "(++51) 913448923",
+        "email": "gnovillo@munipiura.gob.pe"
+      },
+      {
+        "name": "Santa Maria del Mar",
+        "population": "1.700",
+        "website": "http://munisantamariadelmar.gob.pe",
+        "department": "Lima",
+        "contact_name": "Gianmarco Mendoza",
+        "address": "Av. Sardinero 100, Santa Maria del Mar",
+        "phone": "(++51) 974612339",
+        "email": "gianmendozam@gmail.com"
+      },
+      {
+        "name": "Trujillo",
+        "population": "970.000",
+        "website": "http://tmt.gob.pe",
+        "department": "Transportes Metropolitanos de Trujillo",
+        "contact_name": "Victor Hugo Del Carpio Sedano",
+        "address": "Calle Paraguay 192, Urb. El Recreo, Trujillo",
+        "phone": "(++51) 956922944",
+        "email": "gerenciageneral@tmt.gob.pe"
+      }
+    ]
+  },
+  "KS": {
+    "country_name": "Kosovo",
+    "cities": [
+      {
+        "name": "Prishtina",
+        "population": "227.154",
+        "website": "https://kk.rks-gov.net/prishtine/",
+        "department": "Urban planing",
+        "contact_name": "Fatbardha Mehmetukaj",
+        "address": "Rr. Nora e Hotit, Lagjja Arberia, 10000 Prishtina",
+        "phone": "(++381) 44/317-102",
+        "email": "fatbardha.mehmetukaj@rks-gov.net"
+      },
+      {
+        "name": "Prizren",
+        "population": "200.000",
+        "website": "http://kk.rks-gov.net/prizren/",
+        "department": "Directory of Public services",
+        "contact_name": "Muhamet Bajrami",
+        "address": "Str. Remzi Ademaj, nn, 20000 Prizren",
+        "phone": "+37744740433",
+        "email": "muhamet.i.bajrami@rks-gov.net"
+      }
+    ]
+  },
+  "JP": {
+    "country_name": "Japan",
+    "cities": [
+      {
+        "name": "Tokyo",
+        "population": "13.960.000",
+        "website": "https://www.city.suginami.tokyo.jp",
+        "department": "Urban Development Dept.",
+        "contact_name": "Transportation Planning",
+        "address": "Suginami, Tokyo, 166-8570",
+        "phone": "(++81) 03-5307-0793",
+        "email": "koutsu-kikaku@city.suginami.lg.jp"
+      },
+      {
+        "name": "Osaka",
+        "population": "2.697.724",
+        "website": "https://cyclepicnic.wordpress.com/",
+        "department": "Bicycle Culture Townmaking Association",
+        "contact_name": "Itaru Fujie",
+        "address": "Nishiyodogawa, Osaka, 555-0013",
+        "phone": "(++81) 06-6475-8885",
+        "email": "fujie@aozora.or.jp"
+      }
+    ]
+  },
+  "BA": {
+    "country_name": "Bosnia and Herzegovina",
+    "cities": [
+      {
+        "name": "Sarajevo",
+        "population": "275.524",
+        "website": "http://sarajevo.ba/",
+        "department": "City Service for Sustainable Development",
+        "contact_name": "Mirela Bilic",
+        "address": "Hamdije Kresevljakovica 3, 71000 Sarajevo",
+        "phone": "(++387) 33407964",
+        "email": "mirela.bilic@sarajevo.ba"
+      },
+      {
+        "name": "Mostar",
+        "population": "113.169",
+        "website": "http://www.mostar.ba/",
+        "department": "Sport association of the City of Mostar",
+        "contact_name": "Dzenan Suta",
+        "address": "dr. Ante Starcevica 34, 88000 Mostar",
+        "phone": "(++387) 61766950",
+        "email": "ssgm.dzenan@gmail.com"
+      }
+    ]
+  },
+  "UA": {
+    "country_name": "Ukraine",
+    "cities": [
+      {
+        "name": "Kyiv",
+        "population": "2.960.000",
+        "website": "https://kyivrada.gov.ua/",
+        "department": "Transport Department",
+        "contact_name": "Orest Oleskiv",
+        "address": "Akad. Sakharova str. 2, 79012 Kyiv",
+        "phone": "",
+        "email": "kyiv.mobility@gmail.com"
+      },
+      {
+        "name": "Kharkiv",
+        "population": "1.300.000",
+        "website": "https://www.city.kharkiv.ua/",
+        "department": "Department of Construction and Roads",
+        "contact_name": "Matias Volodymyr",
+        "address": "Konstytutsii sq. 7, 61003 Kharkiv",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "MK": {
+    "country_name": "North Macedonia",
+    "cities": [
+      {
+        "name": "Skopje",
+        "population": "506.926",
+        "website": "http://www.skopje.gov.mk/",
+        "department": "Urban Development",
+        "contact_name": "Mayor's Office",
+        "address": "Skopje City Center",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "CY": {
+    "country_name": "Cyprus",
+    "cities": [
+      {
+        "name": "Nicosia",
+        "population": "330.000",
+        "website": "http://www.nicosia.org.cy/en-GB/home/",
+        "department": "",
+        "contact_name": "Christina Christodoulou",
+        "address": "Eleftheria Square, P.O Box 21015, 1500 Nicosia",
+        "phone": "+357 22797453",
+        "email": "christina.christodoulou@nicosia.org.cy"
+      },
+      {
+        "name": "Limassol",
+        "population": "108.000",
+        "website": "https://www.limassol.org.cy/en/home",
+        "department": "Green transition and climate change office",
+        "contact_name": "Nikos Parmaxis",
+        "address": "Town Hall, 23 Arch. Kyprianos, 3036 Limassol",
+        "phone": "(++357) 25345720",
+        "email": "nparmaxis@limassol.org.cy"
+      }
+    ]
+  },
+  "GB": {
+    "country_name": "United Kingdom",
+    "cities": [
+      {
+        "name": "London",
+        "population": "9.840.740",
+        "website": "https://www.london.gov.uk",
+        "department": "Transport",
+        "contact_name": "Transport Authority",
+        "address": "London",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Manchester",
+        "population": "425.000",
+        "website": "https://www.manchester.gov.uk",
+        "department": "Transport",
+        "contact_name": "City Council",
+        "address": "Manchester",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "GR": {
+    "country_name": "Greece",
+    "cities": [
+      {
+        "name": "Athens",
+        "population": "637.700",
+        "website": "https://www.cityofathens.gr",
+        "department": "Urban Mobility",
+        "contact_name": "City Hall",
+        "address": "Athens",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Thessaloniki",
+        "population": "1.000.000",
+        "website": "https://www.thessaloniki.gr",
+        "department": "Urban Mobility",
+        "contact_name": "City Hall",
+        "address": "Thessaloniki",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "ES": {
+    "country_name": "Spain",
+    "cities": [
+      {
+        "name": "Madrid",
+        "population": "3.280.782",
+        "website": "https://www.madrid.es",
+        "department": "Movilidad",
+        "contact_name": "Ayuntamiento de Madrid",
+        "address": "Madrid",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Barcelona",
+        "population": "1.608.746",
+        "website": "https://www.barcelona.cat",
+        "department": "Movilidad Urbana",
+        "contact_name": "Ayuntamiento de Barcelona",
+        "address": "Barcelona",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "FR": {
+    "country_name": "France",
+    "cities": [
+      {
+        "name": "Paris",
+        "population": "2.165.423",
+        "website": "https://www.paris.fr",
+        "department": "Mobilité",
+        "contact_name": "Mairie de Paris",
+        "address": "Paris",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Lyon",
+        "population": "513.275",
+        "website": "https://www.lyon.fr",
+        "department": "Mobilité Urbaine",
+        "contact_name": "Mairie de Lyon",
+        "address": "Lyon",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "DE": {
+    "country_name": "Germany",
+    "cities": [
+      {
+        "name": "Berlin",
+        "population": "3.645.000",
+        "website": "https://www.berlin.de",
+        "department": "Verkehr",
+        "contact_name": "Berlin Senat",
+        "address": "Berlin",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Munich",
+        "population": "1.471.508",
+        "website": "https://www.muenchen.de",
+        "department": "Mobilität",
+        "contact_name": "Rathaus München",
+        "address": "München",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  "IT": {
+    "country_name": "Italy",
+    "cities": [
+      {
+        "name": "Rome",
+        "population": "2.873.494",
+        "website": "https://www.roma.it",
+        "department": "Mobilità",
+        "contact_name": "Comune di Roma",
+        "address": "Roma",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "name": "Milan",
+        "population": "1.352.031",
+        "website": "https://www.comune.milano.it",
+        "department": "Mobilità",
+        "contact_name": "Comune di Milano",
+        "address": "Milano",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  }
+};

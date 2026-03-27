@@ -1,59 +1,502 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabla 3</title>
-    <script>
-        // Function to escape HTML to prevent XSS
-        function escapeHTML(unsafe) {
-            return unsafe
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;')
-                .replace(/\/g, '&#x2F;');
-        }
-
-        // Function to validate URLs
-        function isValidURL(url) {
-            const regex = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\- .\/\?%&=]*)?$/;
-            return regex.test(url);
-        }
-
-        // Function to sanitize inputs
-        function sanitizeInput(input) {
-            return escapeHTML(input);
-        }
-
-        // Error handling function
-        function handleError(error) {
-            console.error('Error:', error);
-            alert('An error occurred: ' + error);
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnailStep · Mobility Week CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #01534f;
+    --green-light: #017a74;
+    --green-pale: #e6f2f1;
+    --accent: #f0c84a;
+    --dark: #0a1a19;
+    --text: #1a2e2d;
+    --muted: #6b8a88;
+    --border: #c2d8d6;
+    --bg: #f5fafa;
+    --white: #ffffff;
+    --red: #e05555;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+  #login-overlay { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease; }
+  #login-overlay.hidden { opacity: 0; pointer-events: none; }
+  .login-box { background: var(--white); border-radius: 16px; padding: 48px 52px; width: 420px; max-width: 95vw; box-shadow: 0 40px 80px rgba(0,0,0,0.4); animation: slideUp 0.4s ease; }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+  .login-logo-mark { width: 36px; height: 36px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .login-logo-text { font-size: 20px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+  .login-title { font-size: 26px; font-weight: 800; color: var(--dark); margin-bottom: 6px; letter-spacing: -0.5px; }
+  .login-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 32px; font-family: var(--mono); }
+  .login-field { margin-bottom: 18px; }
+  .login-field label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; font-family: var(--mono); }
+  .login-field input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px; font-size: 15px; font-family: var(--mono); color: var(--dark); background: var(--bg); outline: none; transition: border-color 0.2s; }
+  .login-field input:focus { border-color: var(--green); background: var(--white); }
+  .login-btn { width: 100%; padding: 14px; background: var(--green); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; margin-top: 8px; letter-spacing: 0.5px; transition: background 0.2s, transform 0.1s; }
+  .login-btn:hover { background: var(--green-light); }
+  .login-btn:active { transform: scale(0.99); }
+  .login-error { margin-top: 14px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: var(--red); font-size: 13px; font-family: var(--mono); display: none; }
+  #app { display: none; min-height: 100vh; }
+  #app.visible { display: block; }
+  .header { background: var(--green); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(1,83,79,0.3); }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo-mark { width: 28px; height: 28px; background: rgba(255,255,255,0.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .header-title { font-size: 16px; font-weight: 800; color: white; letter-spacing: -0.3px; }
+  .header-badge { background: rgba(255,255,255,0.15); color: white; font-size: 11px; font-family: var(--mono); padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .logout-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-family: var(--mono); cursor: pointer; transition: background 0.2s; }
+  .logout-btn:hover { background: rgba(255,255,255,0.2); }
+  .controls { padding: 20px 32px; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .search-wrap { flex: 1; min-width: 220px; position: relative; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+  .search-input { width: 100%; padding: 9px 12px 9px 34px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; font-family: var(--mono); color: var(--text); outline: none; transition: border-color 0.2s; background: var(--bg); }
+  .search-input:focus { border-color: var(--green); background: white; }
+  .filter-select { padding: 9px 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 13px; font-family: var(--mono); color: var(--text); outline: none; background: var(--bg); cursor: pointer; transition: border-color 0.2s; min-width: 160px; }
+  .filter-select:focus { border-color: var(--green); }
+  .stats-chips { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+  .chip { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-family: var(--mono); font-weight: 500; white-space: nowrap; }
+  .chip-total { background: var(--green-pale); color: var(--green); }
+  .chip-filtered { background: var(--accent); color: #7a5f00; }
+  .chip-contact { background: #e8f5e9; color: #2e7d32; }
+  .table-wrap { padding: 24px 32px 48px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 16px rgba(1,83,79,0.07); }
+  thead { background: var(--green); color: white; position: sticky; top: 60px; }
+  th { padding: 13px 16px; text-align: left; font-size: 11px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; cursor: pointer; user-select: none; transition: background 0.15s; }
+  th:hover { background: var(--green-light); }
+  th .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 10px; }
+  th.sort-asc .sort-icon::after { content: '↑'; opacity: 1; }
+  th.sort-desc .sort-icon::after { content: '↓'; opacity: 1; }
+  th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: '⇅'; }
+  tbody tr { border-bottom: 1px solid var(--green-pale); transition: background 0.12s; }
+  tbody tr:hover { background: var(--green-pale); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 11px 16px; vertical-align: middle; font-family: var(--mono); color: var(--text); }
+  .td-country { font-weight: 600; color: var(--green); white-space: nowrap; font-size: 12px; }
+  .flag { display: inline-block; width: 20px; height: 14px; border-radius: 2px; margin-right: 6px; font-size: 16px; vertical-align: middle; line-height: 1; }
+  .td-city { font-weight: 600; color: var(--dark); white-space: nowrap; }
+  .td-pop { text-align: right; color: var(--muted); font-size: 12px; }
+  .td-email a { color: var(--green); text-decoration: none; font-size: 12px; }
+  .td-email a:hover { text-decoration: underline; }
+  .td-web a { color: var(--green-light); text-decoration: none; font-size: 11px; }
+  .td-web a:hover { text-decoration: underline; }
+  .badge-empty { color: var(--muted); font-size: 11px; opacity: 0.5; }
+  .badge-contact { display: inline-block; background: var(--green-pale); color: var(--green); padding: 2px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+  .badge-dept { font-size: 11px; color: var(--muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); font-family: var(--mono); font-size: 14px; }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 20px 32px 8px; flex-wrap: wrap; }
+  .page-btn { width: 34px; height: 34px; border: 2px solid var(--border); border-radius: 6px; background: white; color: var(--text); font-size: 13px; font-family: var(--mono); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+  .page-btn:hover { border-color: var(--green); color: var(--green); }
+  .page-btn.active { background: var(--green); border-color: var(--green); color: white; }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .page-info { font-size: 12px; font-family: var(--mono); color: var(--muted); padding: 0 8px; }
+  @media (max-width: 768px) {
+    .controls { padding: 14px 16px; }
+    .table-wrap { padding: 12px 16px 40px; }
+    .header { padding: 0 16px; }
+    .stats-chips { margin-left: 0; }
+  }
+</style>
 </head>
 <body>
-    <h1>Secure Tabla 3</h1>
-    <form id="myForm">
-        <label for="urlInput">Enter URL:</label>
-        <input type="text" id="urlInput" name="urlInput" required>
-        <button type="submit">Submit</button>
-    </form>
 
-    <script>
-        document.getElementById('myForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const urlInput = document.getElementById('urlInput').value;
-            if (isValidURL(urlInput)) {
-                // Process and sanitize input if valid
-                const sanitizedInput = sanitizeInput(urlInput);
-                console.log('Sanitized Input:', sanitizedInput);
-            } else {
-                handleError('Invalid URL provided.');
-            }
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-mark">🐌</div>
+      <div class="login-logo-text">SnailStep</div>
+    </div>
+    <div class="login-title">Acceso restringido</div>
+    <div class="login-subtitle">Mobility Week CRM · Base de ciudades</div>
+    <div class="login-field">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="usuario" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" id="login-btn">Entrar →</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo-mark">🐌</div>
+      <div class="header-title">SnailStep CRM</div>
+      <span class="header-badge">Mobility Week 2025</span>
+    </div>
+    <div class="header-right">
+      <button class="logout-btn" id="logout-btn">↩ Salir</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="search" placeholder="Buscar ciudad, contacto, email...">
+    </div>
+    <select class="filter-select" id="filter-country">
+      <option value="">Todos los países</option>
+    </select>
+    <select class="filter-select" id="filter-contact">
+      <option value="">Todos</option>
+      <option value="yes">Con contacto</option>
+      <option value="no">Sin contacto</option>
+    </select>
+    <div class="stats-chips">
+      <span class="chip chip-total" id="chip-total">— ciudades</span>
+      <span class="chip chip-filtered" id="chip-filtered" style="display:none"></span>
+      <span class="chip chip-contact" id="chip-contact">— con email</span>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th data-col="country">País <span class="sort-icon"></span></th>
+          <th data-col="city">Ciudad <span class="sort-icon"></span></th>
+          <th data-col="population">Población <span class="sort-icon"></span></th>
+          <th data-col="contact">Contacto <span class="sort-icon"></span></th>
+          <th data-col="email">Email <span class="sort-icon"></span></th>
+          <th data-col="phone">Teléfono</th>
+          <th data-col="website">Web</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div class="empty-state-icon">🔍</div>
+      No se encontraron ciudades con ese criterio.
+    </div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<script>
+function escapeHTML(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function isValidURL(url) {
+  if (typeof url !== 'string') return false;
+  try {
+    const urlObj = new URL(url);
+    return /^https?:$/.test(urlObj.protocol);
+  } catch (e) {
+    return false;
+  }
+}
+
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+  return input.trim().replace(/[<>\"']/g, '');
+}
+
+function logError(error, context = '') {
+  try {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(`[SnailStep CRM${context ? ' - ' + context : ''}]: ${errorMsg}`);
+  } catch (e) {
+    console.error('Error logging failed');
+  }
+}
+
+const CREDENTIALS = {
+  user: "snailstep",
+  passHash: "850dc14c88394a7fb9d54cb9c3b7ede7bb3aeecd5bab7a1060a73b857e3165e3"
+};
+
+async function sha256(str) {
+  try {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+  } catch (e) {
+    logError(e, 'sha256');
+    return '';
+  }
+}
+
+async function tryLogin() {
+  try {
+    const u = sanitizeInput(document.getElementById("login-user").value);
+    const p = document.getElementById("login-pass").value;
+    
+    if (!u || !p) {
+      document.getElementById("login-error").style.display = "block";
+      return;
+    }
+
+    const h = await sha256(p);
+    if (u === CREDENTIALS.user && h === CREDENTIALS.passHash) {
+      sessionStorage.setItem("ss_auth", "1");
+      document.getElementById("login-overlay").classList.add("hidden");
+      document.getElementById("app").classList.add("visible");
+      initApp();
+    } else {
+      document.getElementById("login-error").style.display = "block";
+      document.getElementById("login-pass").value = "";
+    }
+  } catch (e) {
+    logError(e, 'tryLogin');
+  }
+}
+
+document.getElementById("login-btn").addEventListener("click", tryLogin);
+document.getElementById("login-pass").addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+document.getElementById("login-user").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("login-pass").focus(); });
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  try {
+    sessionStorage.removeItem("ss_auth");
+    location.reload();
+  } catch (e) {
+    logError(e, 'logout');
+  }
+});
+
+if (sessionStorage.getItem("ss_auth") === "1") {
+  document.getElementById("login-overlay").classList.add("hidden");
+  document.getElementById("app").classList.add("visible");
+}
+
+const RAW_DATA = {
+  "AL": {
+    "country_name": "Albania",
+    "cities": [
+      {
+        "name": "Bashkia Elbasan",
+        "population": "217.578",
+        "website": "https://elbasani.gov.al",
+        "department": "Dirección de Planificación",
+        "contact_name": "Alba Canaj",
+        "phone": "(++355) 692022717",
+        "email": "alba.canaj@elbasani.gov.al"
+      },
+      {
+        "name": "Tirana",
+        "population": "520.000",
+        "website": "https://tirana.al",
+        "department": "Promoción y Conciencia",
+        "contact_name": "Meri Lamce",
+        "phone": "(++355) 694649946",
+        "email": "meri.lamce@tirana.al"
+      }
+    ]
+  },
+  "CH": {
+    "country_name": "Switzerland",
+    "cities": [
+      {
+        "name": "Basel",
+        "population": "200.000",
+        "website": "https://www.bs.ch",
+        "department": "Oficina de Movilidad",
+        "contact_name": "Thomas Graf",
+        "phone": "(++41) 612678534",
+        "email": "thomas.graf@bs.ch"
+      }
+    ]
+  }
+};
+
+const COUNTRY_FLAGS = {
+  AL:"🇦🇱", CH:"🇨🇭"
+};
+
+let allRows = [];
+let filtered = [];
+let sortCol = "country";
+let sortDir = 1;
+let currentPage = 1;
+const PAGE_SIZE = 50;
+
+function initApp() {
+  try {
+    allRows = [];
+    for (const [code, country] of Object.entries(RAW_DATA)) {
+      for (const city of country.cities) {
+        allRows.push({
+          code,
+          country: country.country_name || '',
+          city: city.name || "",
+          population: city.population || "",
+          contact: city.contact_name || "",
+          department: city.department || "",
+          email: city.email || "",
+          phone: city.phone || "",
+          website: city.website || ""
         });
-    </script>
+      }
+    }
+
+    const sel = document.getElementById("filter-country");
+    const countries = [...new Set(allRows.map(r => r.country))].sort();
+    countries.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = escapeHTML(c);
+      sel.appendChild(opt);
+    });
+
+    const withEmail = allRows.filter(r => r.email).length;
+    document.getElementById("chip-total").textContent = allRows.length + " ciudades";
+    document.getElementById("chip-contact").textContent = withEmail + " con email";
+
+    applyFilters();
+
+    document.getElementById("search").addEventListener("input", () => { currentPage = 1; applyFilters(); });
+    document.getElementById("filter-country").addEventListener("change", () => { currentPage = 1; applyFilters(); });
+    document.getElementById("filter-contact").addEventListener("change", () => { currentPage = 1; applyFilters(); });
+
+    document.querySelectorAll("th[data-col]").forEach(th => {
+      th.addEventListener("click", () => {
+        const col = th.dataset.col;
+        if (sortCol === col) sortDir *= -1;
+        else { sortCol = col; sortDir = 1; }
+        document.querySelectorAll("th[data-col]").forEach(t => t.classList.remove("sort-asc","sort-desc"));
+        th.classList.add(sortDir === 1 ? "sort-asc" : "sort-desc");
+        currentPage = 1;
+        applyFilters();
+      });
+    });
+  } catch (e) {
+    logError(e, 'initApp');
+  }
+}
+
+function applyFilters() {
+  try {
+    const q = sanitizeInput(document.getElementById("search").value).toLowerCase();
+    const country = document.getElementById("filter-country").value;
+    const contact = document.getElementById("filter-contact").value;
+
+    filtered = allRows.filter(r => {
+      if (country && r.country !== country) return false;
+      if (contact === "yes" && !r.email) return false;
+      if (contact === "no" && r.email) return false;
+      if (q) {
+        const haystack = [r.city, r.country, r.contact, r.email, r.department, r.phone].join(" ").toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+
+    filtered.sort((a, b) => {
+      let av = a[sortCol] || "", bv = b[sortCol] || "";
+      if (sortCol === "population") {
+        av = parseFloat(av.replace(/\./g,"").replace(/,/g,".")) || 0;
+        bv = parseFloat(bv.replace(/\./g,"").replace(/,/g,".")) || 0;
+        return (av - bv) * sortDir;
+      }
+      return av.localeCompare(bv) * sortDir;
+    });
+
+    const chip = document.getElementById("chip-filtered");
+    if (q || country || contact) {
+      chip.style.display = "inline-block";
+      chip.textContent = filtered.length + " resultados";
+    } else {
+      chip.style.display = "none";
+    }
+
+    renderPage();
+    renderPagination();
+  } catch (e) {
+    logError(e, 'applyFilters');
+  }
+}
+
+function renderPage() {
+  try {
+    const body = document.getElementById("table-body");
+    const empty = document.getElementById("empty-state");
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const page = filtered.slice(start, start + PAGE_SIZE);
+
+    if (filtered.length === 0) {
+      body.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    body.innerHTML = page.map(r => {
+      const flag = COUNTRY_FLAGS[r.code] || "🌍";
+      const emailCell = r.email && r.email.includes("@")
+        ? `<a href="mailto:${escapeHTML(r.email)}">${escapeHTML(r.email)}</a>`
+        : `<span class="badge-empty">—</span>`;
+      const webCell = r.website && isValidURL(r.website)
+        ? `<a href="${escapeHTML(r.website)}" target="_blank" rel="noopener">${escapeHTML(r.website.replace(/https?:\/\/(www\.)?/,'').slice(0,30))}</a>`
+        : `<span class="badge-empty">—</span>`;
+      const contactCell = r.contact
+        ? `<span class="badge-contact">${escapeHTML(r.contact)}</span>`
+        : `<span class="badge-empty">—</span>`;
+      const phoneCell = r.phone ? escapeHTML(r.phone) : `<span class="badge-empty">—</span>`;
+
+      return `<tr>
+        <td class="td-country"><span class="flag">${flag}</span>${escapeHTML(r.code)}</td>
+        <td class="td-city">${escapeHTML(r.city)}</td>
+        <td class="td-pop">${escapeHTML(r.population) || '—'}</td>
+        <td>${contactCell}</td>
+        <td class="td-email">${emailCell}</td>
+        <td style="font-size:11px;color:var(--muted)">${phoneCell}</td>
+        <td class="td-web">${webCell}</td>
+      </tr>`;
+    }).join("");
+  } catch (e) {
+    logError(e, 'renderPage');
+  }
+}
+
+function renderPagination() {
+  try {
+    const total = Math.ceil(filtered.length / PAGE_SIZE);
+    const pag = document.getElementById("pagination");
+    if (total <= 1) { pag.innerHTML = ""; return; }
+
+    let html = `<button class="page-btn" ${currentPage===1?"disabled":""} onclick="goPage(${currentPage-1})">‹</button>`;
+
+    for (let i = 1; i <= total; i++) {
+      if (i === 1 || i === total || (i >= currentPage-2 && i <= currentPage+2)) {
+        html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      } else if (i === currentPage-3 || i === currentPage+3) {
+        html += `<span class="page-info">…</span>`;
+      }
+    }
+
+    html += `<button class="page-btn" ${currentPage===total?"disabled":""} onclick="goPage(${currentPage+1})">›</button>`;
+    html += `<span class="page-info">${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,filtered.length)} de ${filtered.length}</span>`;
+    pag.innerHTML = html;
+  } catch (e) {
+    logError(e, 'renderPagination');
+  }
+}
+
+function goPage(p) {
+  try {
+    currentPage = p;
+    renderPage();
+    renderPagination();
+    window.scrollTo({top:0, behavior:'smooth'});
+  } catch (e) {
+    logError(e, 'goPage');
+  }
+}
+
+if (sessionStorage.getItem("ss_auth") === "1") {
+  initApp();
+}
+</script>
+
 </body>
 </html>

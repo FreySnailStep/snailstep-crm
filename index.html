@@ -208,90 +208,103 @@
       }
     };
 
-    const COUNTRY_FLAGS = {
-      AL: "🇦🇱",
-      AZ: "🇦🇿"
-    };
+   <script>
+const COUNTRY_FLAGS = {
+  AL:"🇦🇱", AZ:"🇦🇿", GE:"🇬🇪", CH:"🇨🇭", EC:"🇪🇨", IS:"🇮🇸", 
+  LV:"🇱🇻", NL:"🇳🇱", MD:"🇲🇩", MX:"🇲🇽", ME:"🇲🇪", IE:"🇮🇪", 
+  NO:"🇳🇴", PE:"🇵🇪", KS:"🇽🇰", JP:"🇯🇵", BA:"🇧🇦", UA:"🇺🇦", 
+  MK:"🇲🇰", CY:"🇨🇾", GB:"🇬🇧", GR:"🇬🇷", ES:"🇪🇸", FR:"🇫🇷", 
+  DE:"🇩🇪", IT:"🇮🇹"
+};
 
-    const results = document.getElementById("results");
-    const searchInput = document.getElementById("searchInput");
-    const summaryText = document.getElementById("summaryText");
+const results = document.getElementById("results");
+const searchInput = document.getElementById("searchInput");
+const summaryText = document.getElementById("summaryText");
 
-    function cityMatches(city, countryName, code, query) {
-      const fullText = [
-        code,
-        countryName,
-        city.name,
-        city.population,
-        city.website,
-        city.department,
-        city.contact_name,
-        city.address,
-        city.phone,
-        city.email
-      ]
-        .join(" ")
-        .toLowerCase();
+function cityMatches(city, countryName, code, query) {
+  const fullText = [
+    code,
+    countryName,
+    city.name,
+    city.population,
+    city.website,
+    city.department,
+    city.contact_name,
+    city.address,
+    city.phone,
+    city.email
+  ]
+    .join(" ")
+    .toLowerCase();
 
-      return fullText.includes(query.toLowerCase());
-    }
+  return fullText.includes(query.toLowerCase());
+}
 
-    function renderData(query = "") {
-      results.innerHTML = "";
+function renderData(DATA, query = "") {
+  results.innerHTML = "";
 
-      let countriesShown = 0;
-      let citiesShown = 0;
+  let countriesShown = 0;
+  let citiesShown = 0;
 
-      Object.entries(RAW_DATA).forEach(([code, country]) => {
-        const filteredCities = country.cities.filter(city =>
-          cityMatches(city, country.country_name, code, query)
-        );
+  Object.entries(DATA).forEach(([code, country]) => {
+    const filteredCities = country.cities.filter(city =>
+      cityMatches(city, country.country_name, code, query)
+    );
 
-        if (filteredCities.length === 0) return;
+    if (filteredCities.length === 0) return;
 
-        countriesShown++;
-        citiesShown += filteredCities.length;
+    countriesShown++;
+    citiesShown += filteredCities.length;
 
-        const countryCard = document.createElement("section");
-        countryCard.className = "country-card";
+    const countryCard = document.createElement("section");
+    countryCard.className = "country-card";
 
-        const citiesHtml = filteredCities.map(city => `
-          <article class="city-card">
-            <div class="city-name">${city.name}</div>
-            <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
-            <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
-            <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
-            <div class="field"><span class="label">Address:</span> ${city.address || "N/A"}</div>
-            <div class="field"><span class="label">Phone:</span> ${city.phone || "N/A"}</div>
-            <div class="field"><span class="label">Email:</span> ${
-              city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
-            }</div>
-            <div class="field"><span class="label">Website:</span> ${
-              city.website ? `<a href="${city.website}" target="_blank">${city.website}</a>` : "N/A"
-            }</div>
-          </article>
-        `).join("");
+    const citiesHtml = filteredCities.map(city => `
+      <article class="city-card">
+        <div class="city-name">${city.name}</div>
+        <div class="field"><span class="label">Population:</span> ${city.population || "N/A"}</div>
+        <div class="field"><span class="label">Department:</span> ${city.department || "N/A"}</div>
+        <div class="field"><span class="label">Contact:</span> ${city.contact_name || "N/A"}</div>
+        <div class="field"><span class="label">Address:</span> ${city.address || "N/A"}</div>
+        <div class="field"><span class="label">Phone:</span> ${city.phone || "N/A"}</div>
+        <div class="field"><span class="label">Email:</span> ${
+          city.email ? `<a href="mailto:${city.email}">${city.email}</a>` : "N/A"
+        }</div>
+        <div class="field"><span class="label">Website:</span> ${
+          city.website ? `<a href="${city.website}" target="_blank">${city.website}</a>` : "N/A"
+        }</div>
+      </article>
+    `).join("");
 
-        countryCard.innerHTML = `
-          <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name}</h2>
-          <div class="cities-grid">${citiesHtml}</div>
-        `;
+    countryCard.innerHTML = `
+      <h2 class="country-title">${COUNTRY_FLAGS[code] || "🌍"} ${country.country_name}</h2>
+      <div class="cities-grid">${citiesHtml}</div>
+    `;
 
-        results.appendChild(countryCard);
-      });
+    results.appendChild(countryCard);
+  });
 
-      if (citiesShown === 0) {
-        results.innerHTML = `<div class="empty">No se han encontrado resultados para tu búsqueda.</div>`;
-      }
+  if (citiesShown === 0) {
+    results.innerHTML = `<div class="empty">No se han encontrado resultados.</div>`;
+  }
 
-      summaryText.textContent = `${countriesShown} país(es) · ${citiesShown} ciudad(es) visibles`;
-    }
+  summaryText.textContent = `${countriesShown} país(es) · ${citiesShown} ciudad(es)`;
+}
 
-    searchInput.addEventListener("input", (e) => {
-      renderData(e.target.value.trim());
-    });
+let GLOBAL_DATA = {};
 
-    renderData();
-  </script>
-</body>
-</html>
+fetch("mobility_data.json")
+  .then(res => res.json())
+  .then(data => {
+    GLOBAL_DATA = data;
+    renderData(GLOBAL_DATA);
+  })
+  .catch(err => {
+    results.innerHTML = `<div class="empty">Error cargando datos</div>`;
+    console.error(err);
+  });
+
+searchInput.addEventListener("input", (e) => {
+  renderData(GLOBAL_DATA, e.target.value.trim());
+});
+</script>
